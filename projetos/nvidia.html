@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Startup AI Radar · NVIDIA · Vinícius Bonani</title>
+  <meta name="description" content="Estudo de caso: plataforma multiagente que mapeia startups brasileiras de IA e recomenda tecnologias NVIDIA com base no gap técnico real de cada empresa.">
+  <meta name="theme-color" content="#081a14">
+  <!-- Página aberta por uma transição: já nasce coberta, antes de qualquer pintura (ver src/lib/transition.js) -->
+  <script>
+    try {
+      const title = sessionStorage.getItem('vb-transition');
+      if (title !== null && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        sessionStorage.removeItem('vb-transition');
+        document.documentElement.classList.add('is-entering');
+        document.documentElement.dataset.transitionTitle = title;
+      }
+    } catch {}
+    // Quando o navegador pula a View Transition (ex.: navegação sem clique), a promessa rejeita; não é erro
+    const ignoreSkip = transition => {
+      transition?.ready.catch(() => {});
+      transition?.finished.catch(() => {});
+      transition?.updateCallbackDone?.catch(() => {});
+    };
+    addEventListener('pagereveal', event => ignoreSkip(event.viewTransition));
+    addEventListener('pageswap', event => ignoreSkip(event.viewTransition));
+  </script>
+  <style>
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+    html.is-entering::before { content: ''; position: fixed; inset: 0; z-index: 200; background: #081a14; }
+    html.is-entering::after { content: attr(data-transition-title); position: fixed; inset: 0; z-index: 201; display: grid; place-items: center; padding: 0 1rem; text-align: center; color: #c4dbd0; font: 500 clamp(2rem, 6vw, 4.5rem)/1.05 'Geist', sans-serif; letter-spacing: -0.03em; }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/src/styles/tokens.css">
+  <link rel="stylesheet" href="/src/styles/base.css">
+  <link rel="stylesheet" href="/src/styles/case.css">
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body data-page="case">
+
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="../index.html" data-transition-title="Vinícius Bonani">vb<span>.</span></a>
+      <nav aria-label="Navegação principal">
+        <a href="./index.html" data-transition-title="Projetos" aria-current="page">Projetos</a>
+        <a href="../index.html#sobre" data-transition-title="Vinícius Bonani">Sobre</a>
+        <a href="../index.html#contato" data-transition-title="Vinícius Bonani">Contato</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <section class="case-hero" data-shape="logo" data-shape-logo="nvidia" data-shape-x="0.76" data-shape-y="0.32" data-shape-size="0.55" data-shape-intensity="0.75">
+      <a class="back-link" href="./index.html" data-transition-title="Projetos">← todos os projetos</a>
+      <h1 class="case-title">Startup AI Radar<br>· NVIDIA</h1>
+      <p class="case-lead">Uma ferramenta para o time de Startups &amp; VCs da NVIDIA <strong>encontrar e comparar startups brasileiras de IA</strong>, com a fonte de cada informação guardada.</p>
+
+      <dl class="fact-sheet">
+        <div><dt>Parceiro</dt><dd>NVIDIA, via Inteli Academy</dd></div>
+        <div><dt>Ano</dt><dd>2026</dd></div>
+        <div><dt>Formato</dt><dd>Projeto individual</dd></div>
+        <div><dt>Meu papel</dt><dd>Arquitetura, backend, frontend e avaliação</dd></div>
+      </dl>
+
+      <div class="case-cover">
+        <div class="shot"><img src="/img/projetos/nvidia.webp" width="1600" height="800" alt="Página inicial do NVIDIA Startup AI Radar: o radar das startups brasileiras de IA"></div>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="sparkle" data-shape-anchor="h2" data-shape-size="0.5" data-shape-intensity="0.3">
+      <div>
+        <p class="label">Problema</p>
+        <h2>Muita startup para pouco tempo.</h2>
+      </div>
+      <div class="prose">
+        <p>Dado um tema ou uma lista de empresas, o time precisa saber quais são realmente <strong>AI-native</strong>, onde está a lacuna técnica de cada uma e qual tecnologia NVIDIA resolveria essa lacuna.</p>
+        <p>O resultado também precisa fazer sentido para o fundador da startup, falando de custo por token, latência e defensibilidade.</p>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="sparkle" data-shape-anchor=".flow .is-current" data-shape-align="start" data-shape-dx="6" data-shape-dy="13" data-shape-px="96" data-shape-intensity="0.95">
+      <div>
+        <p class="label">Arquitetura</p>
+        <h2>Como funciona.</h2>
+      </div>
+      <div class="prose">
+        <p>Um fluxo em LangGraph em que todos os nós compartilham o mesmo estado. Diferente de uma cadeia linear de prompts, ele pode <strong>voltar</strong> quando falta evidência e <strong>parar cedo</strong> quando a empresa não é de IA.</p>
+        <ol class="flow">
+          <li><div><h3>Search Planner</h3><p>Transforma a consulta num plano de busca. Na repetição, busca só o que está faltando.</p></div></li>
+          <li><div><h3>Scraper</h3><p>Coleta conteúdo público e guarda a fonte de cada trecho.</p></div></li>
+          <li><div><h3>Extractor</h3><p>Preenche o schema da empresa com saída estruturada (Pydantic).</p></div></li>
+          <li class="is-gate"><div><h3>Evidence Validator</h3><p>Confere cada afirmação contra as fontes e remove o que não tem lastro. Se faltar evidência, volta ao planejamento, com limite de tentativas.</p></div></li>
+          <li class="is-branch"><div><h3>Classifier</h3><p>Aplica os três eixos AI-native. Se a empresa não for de IA, o fluxo termina aqui e economiza as etapas caras.</p></div></li>
+          <li><div><h3>NVIDIA RAG</h3><p>Busca híbrida (vetorial + BM25) traz cerca de 50 trechos da documentação NVIDIA, e o rerank seleciona os 5 melhores.</p></div></li>
+          <li><div><h3>Recommendation</h3><p>Cruza as lacunas da empresa com as camadas do portfólio NVIDIA e monta a recomendação.</p></div></li>
+          <li><div><h3>Briefing</h3><p>Redige o relatório executivo e faz uma revisão final contra as fontes.</p></div></li>
+        </ol>
+        <figure class="case-figure">
+          <img src="/img/projetos/nvidia-pipeline.webp" width="1600" height="700" alt="Seção Como funciona do site do Radar, com os oito agentes e as regras do fluxo: loop de evidência e desvio para empresas que não são de IA" loading="lazy">
+          <figcaption>Seção "Como funciona" da interface web do Radar.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="ring" data-shape-anchor="h2" data-shape-size="0.55" data-shape-intensity="0.3">
+      <div>
+        <p class="label">Decisões-chave</p>
+        <h2>Escolhas do projeto.</h2>
+      </div>
+      <ul class="decisions">
+        <li>
+          <h3>Validar antes de classificar</h3>
+          <p>O classificador decide em cima de dados já verificados. Assim, uma informação sem fonte não muda a classificação da empresa.</p>
+        </li>
+        <li>
+          <h3>Qdrant para a busca</h3>
+          <p>Nomes de produtos e siglas técnicas se perdem em busca só vetorial. Juntar vetores com BM25 e reranquear resolve isso sem infraestrutura extra.</p>
+        </li>
+        <li>
+          <h3>Pesos que dá para ajustar</h3>
+          <p>A prioridade é uma soma ponderada (AI-native, encaixe com a NVIDIA, tração e time de IA), e os pesos mudam ao vivo na interface, reordenando o ranking na hora.</p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="case-block" data-shape="waves" data-shape-anchor=".big-numbers" data-shape-size="0.75" data-shape-intensity="0.3">
+      <div>
+        <p class="label">Produto</p>
+        <h2>Formas de usar.</h2>
+      </div>
+      <div>
+        <ul class="big-numbers">
+          <li><strong>CLI</strong><span>scripts em Python para rodar análises em lote</span></li>
+          <li><strong>API</strong><span>FastAPI com progresso ao vivo dos agentes via SSE</span></li>
+          <li><strong>Web</strong><span>ranking, comparador de startups, descoberta por tema e briefing para download</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="sparkle" data-shape-anchor="h2" data-shape-size="0.5" data-shape-intensity="0.3">
+      <div>
+        <p class="label">Stack e links</p>
+        <h2>Ferramentas.</h2>
+      </div>
+      <div class="prose">
+        <ul class="tags">
+          <li>Python</li><li>LangGraph</li><li>Pydantic</li><li>Qdrant</li><li>Cohere Rerank</li><li>Gemini Embeddings</li><li>FastAPI</li><li>SQLAlchemy</li><li>PostgreSQL</li><li>Next.js</li><li>Tailwind</li>
+        </ul>
+        <p><a href="https://github.com/viniciuscbonani/Projeto-Nvidia" target="_blank" rel="noopener">Repositório ↗</a></p>
+      </div>
+    </section>
+
+    <!-- Fim da página: meio anel na borda de baixo; parado aqui, rolar mais carrega o arco e leva ao próximo projeto (case.js) -->
+    <section class="next" data-next data-shape="ring" data-shape-anchor=".next-stage" data-shape-align="bottom" data-shape-size="1.1" data-shape-fit="width" data-shape-intensity="0.4">
+      <div class="next-stage">
+        <a class="next-project" href="./suno.html" data-transition-title="Estúdio · Suno Asset">
+          <span class="next-label">Próximo projeto</span>
+          <strong>Estúdio de conteúdo · Suno Asset →</strong>
+        </a>
+      </div>
+    </section>
+  </main>
+
+
+</body>
+</html>

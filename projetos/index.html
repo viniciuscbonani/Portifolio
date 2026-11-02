@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projetos · Vinícius Bonani</title>
+  <meta name="description" content="Todos os projetos de Vinícius Bonani: IA, dados e sistemas feitos com Suno Asset, Cocamar, Tractian, NVIDIA, BTG Pactual e Red Bull.">
+  <meta name="theme-color" content="#081a14">
+  <!-- Página aberta por uma transição: já nasce coberta, antes de qualquer pintura (ver src/lib/transition.js) -->
+  <script>
+    try {
+      const title = sessionStorage.getItem('vb-transition');
+      if (title !== null && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        sessionStorage.removeItem('vb-transition');
+        document.documentElement.classList.add('is-entering');
+        document.documentElement.dataset.transitionTitle = title;
+      }
+    } catch {}
+    // Quando o navegador pula a View Transition (ex.: navegação sem clique), a promessa rejeita; não é erro
+    const ignoreSkip = transition => {
+      transition?.ready.catch(() => {});
+      transition?.finished.catch(() => {});
+      transition?.updateCallbackDone?.catch(() => {});
+    };
+    addEventListener('pagereveal', event => ignoreSkip(event.viewTransition));
+    addEventListener('pageswap', event => ignoreSkip(event.viewTransition));
+  </script>
+  <style>
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+    html.is-entering::before { content: ''; position: fixed; inset: 0; z-index: 200; background: #081a14; }
+    html.is-entering::after { content: attr(data-transition-title); position: fixed; inset: 0; z-index: 201; display: grid; place-items: center; padding: 0 1rem; text-align: center; color: #c4dbd0; font: 500 clamp(2rem, 6vw, 4.5rem)/1.05 'Geist', sans-serif; letter-spacing: -0.03em; }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/src/styles/tokens.css">
+  <link rel="stylesheet" href="/src/styles/base.css">
+  <link rel="stylesheet" href="/src/styles/projects.css">
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body data-page="projects">
+
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="../index.html" data-transition-title="Vinícius Bonani">vb<span>.</span></a>
+      <nav aria-label="Navegação principal">
+        <a href="./index.html" aria-current="page">Projetos</a>
+        <a href="../index.html#sobre" data-transition-title="Vinícius Bonani">Sobre</a>
+        <a href="../index.html#contato" data-transition-title="Vinícius Bonani">Contato</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="projects-hero" data-shape="none" data-shape-flow="0.9">
+      <h1 class="projects-title">Projetos</h1>
+      <div class="view-switch" role="group" aria-label="Forma de ver os projetos">
+        <button class="btn btn-ghost view-icon" type="button" data-view="list" aria-pressed="true" aria-label="Ver em lista" title="Lista">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <button class="btn btn-ghost view-icon" type="button" data-view="grid" aria-pressed="false" aria-label="Ver em grade" title="Grade">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!--
+      Cada projeto é um <li> com o link, o nome, o parceiro, o tipo, o ano e a imagem da prévia.
+      Para acrescentar um projeto, copie um <li> e troque os dados.
+    -->
+    <section class="projects" data-view="list" data-shape="none" data-shape-flow="0.9">
+      <div class="projects-head" aria-hidden="true">
+        <span>Projeto</span><span>Parceiro</span><span>Tipo</span><span>Ano</span>
+      </div>
+
+      <ul class="projects-list">
+        <li class="project">
+          <a href="./suno.html" data-transition-title="Estúdio · Suno Asset">
+            <span class="project-media"><img src="/img/projetos/suno.webp" width="1600" height="800" alt="Estúdio de conteúdo da Suno Asset" loading="lazy"></span>
+            <span class="project-name">Estúdio de conteúdo</span>
+            <span class="project-partner">Suno Asset</span>
+            <span class="project-kind">LLM + avaliação</span>
+            <span class="project-year">2026</span>
+          </a>
+        </li>
+        <li class="project">
+          <a href="./cocamar.html" data-transition-title="TENK · Cocamar">
+            <span class="project-media"><img src="/img/projetos/cocamar.webp" width="1600" height="800" alt="Plataforma Cocamar" loading="lazy"></span>
+            <span class="project-name">TENK · Cocamar</span>
+            <span class="project-partner">Cocamar</span>
+            <span class="project-kind">Machine learning + produto</span>
+            <span class="project-year">2026</span>
+          </a>
+        </li>
+        <li class="project">
+          <a href="./tractian.html" data-transition-title="Investigação · Tractian">
+            <span class="project-media"><img src="/img/projetos/tractian.webp" width="1600" height="800" alt="Painel de investigação da Tractian" loading="lazy"></span>
+            <span class="project-name">Investigação industrial</span>
+            <span class="project-partner">Tractian</span>
+            <span class="project-kind">Sistema multiagente + evals</span>
+            <span class="project-year">2026</span>
+          </a>
+        </li>
+        <li class="project">
+          <a href="./nvidia.html" data-transition-title="AI Radar · NVIDIA">
+            <span class="project-media"><img src="/img/projetos/nvidia.webp" width="1600" height="800" alt="NVIDIA Startup AI Radar" loading="lazy"></span>
+            <span class="project-name">Startup AI Radar</span>
+            <span class="project-partner">NVIDIA</span>
+            <span class="project-kind">Agentes + RAG</span>
+            <span class="project-year">2026</span>
+          </a>
+        </li>
+        <li class="project">
+          <a href="https://github.com/viniciuscbonani/Projeto-BTG-IA" target="_blank" rel="noopener">
+            <span class="project-media"><img src="/img/projetos/btg.webp" width="1000" height="500" alt="Painel com o ranking de ofertas de FIIs" loading="lazy"></span>
+            <span class="project-name">Monitor de ofertas de FIIs <span class="external" aria-hidden="true">↗</span></span>
+            <span class="project-partner">BTG Pactual</span>
+            <span class="project-kind">Dados + LLM</span>
+            <span class="project-year">2026</span>
+          </a>
+        </li>
+        <li class="project">
+          <a href="https://git.inteli.edu.br/publico/2026-1b/t27/g05" target="_blank" rel="noopener">
+            <span class="project-media"><img src="/img/projetos/kairos.webp" width="1000" height="500" alt="Wireframe do Modo TV do Kairos" loading="lazy"></span>
+            <span class="project-name">Kairos <span class="external" aria-hidden="true">↗</span></span>
+            <span class="project-partner">Red Bull</span>
+            <span class="project-kind">Sistema web</span>
+            <span class="project-year">2026</span>
+          </a>
+        </li>
+        <li class="project">
+          <a href="https://github.com/viniciuscbonani/Newsletter-IA-n8n" target="_blank" rel="noopener">
+            <span class="project-media"><img src="/img/projetos/newsletter.webp" width="1000" height="500" alt="Fluxo da newsletter: feeds RSS, classificação e redação com Llama, reserva com Gemini e envio por e-mail" loading="lazy"></span>
+            <span class="project-name">Newsletter de IA <span class="external" aria-hidden="true">↗</span></span>
+            <span class="project-partner">Inteli Academy</span>
+            <span class="project-kind">Automação + LLM</span>
+            <span class="project-year">2026</span>
+          </a>
+        </li>
+      </ul>
+    </section>
+  </main>
+
+
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TENK · Cocamar · Vinícius Bonani</title>
+  <meta name="description" content="Estudo de caso: modelo preditivo de compra de diesel para 5.396 cooperados da Cocamar e a plataforma que entrega a lista ao balconista.">
+  <meta name="theme-color" content="#081a14">
+  <!-- Página aberta por uma transição: já nasce coberta, antes de qualquer pintura (ver src/lib/transition.js) -->
+  <script>
+    try {
+      const title = sessionStorage.getItem('vb-transition');
+      if (title !== null && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        sessionStorage.removeItem('vb-transition');
+        document.documentElement.classList.add('is-entering');
+        document.documentElement.dataset.transitionTitle = title;
+      }
+    } catch {}
+    // Quando o navegador pula a View Transition (ex.: navegação sem clique), a promessa rejeita; não é erro
+    const ignoreSkip = transition => {
+      transition?.ready.catch(() => {});
+      transition?.finished.catch(() => {});
+      transition?.updateCallbackDone?.catch(() => {});
+    };
+    addEventListener('pagereveal', event => ignoreSkip(event.viewTransition));
+    addEventListener('pageswap', event => ignoreSkip(event.viewTransition));
+  </script>
+  <style>
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+    html.is-entering::before { content: ''; position: fixed; inset: 0; z-index: 200; background: #081a14; }
+    html.is-entering::after { content: attr(data-transition-title); position: fixed; inset: 0; z-index: 201; display: grid; place-items: center; padding: 0 1rem; text-align: center; color: #c4dbd0; font: 500 clamp(2rem, 6vw, 4.5rem)/1.05 'Geist', sans-serif; letter-spacing: -0.03em; }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/src/styles/tokens.css">
+  <link rel="stylesheet" href="/src/styles/base.css">
+  <link rel="stylesheet" href="/src/styles/case.css">
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body data-page="case">
+
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="../index.html" data-transition-title="Vinícius Bonani">vb<span>.</span></a>
+      <nav aria-label="Navegação principal">
+        <a href="./index.html" data-transition-title="Projetos" aria-current="page">Projetos</a>
+        <a href="../index.html#sobre" data-transition-title="Vinícius Bonani">Sobre</a>
+        <a href="../index.html#contato" data-transition-title="Vinícius Bonani">Contato</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <section class="case-hero" data-shape="logo" data-shape-logo="cocamar" data-shape-x="0.76" data-shape-y="0.32" data-shape-size="0.55" data-shape-intensity="0.75">
+      <a class="back-link" href="./index.html" data-transition-title="Projetos">← todos os projetos</a>
+      <h1 class="case-title">TENK<br>· Cocamar</h1>
+      <p class="case-lead">Fizemos um modelo que sugere <strong>para quem o balconista deve ligar primeiro</strong> e uma plataforma onde ele encontra essa lista todo mês.</p>
+
+      <dl class="fact-sheet">
+        <div><dt>Parceiro</dt><dd>Cocamar Cooperativa Agroindustrial</dd></div>
+        <div><dt>Ano</dt><dd>2026 · módulo 3 do Inteli</dd></div>
+        <div><dt>Formato</dt><dd>Equipe de 8 pessoas</dd></div>
+        <div><dt>Meu papel</dt><dd>Feature engineering, modelagem e protótipo da plataforma</dd></div>
+      </dl>
+
+      <div class="case-cover">
+        <div class="shot"><img src="/img/projetos/cocamar.webp" width="1600" height="800" alt="Tela “Minha fila” da Plataforma Cocamar, com o próximo cooperado sugerido e a lista do modelo"></div>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="sparkle" data-shape-anchor="h2" data-shape-size="0.5" data-shape-intensity="0.3">
+      <div>
+        <p class="label">Problema</p>
+        <h2>Hoje, o balconista espera o cooperado ligar.</h2>
+      </div>
+      <div class="prose">
+        <p>A Cocamar vende óleo diesel aos cooperados desde 2010, comprando das distribuidoras e entregando na propriedade. O atendimento é <strong>reativo</strong>: a operação só começa quando o cooperado liga pedindo.</p>
+        <p>Isso concentra a demanda em pedidos de última hora, encarece a logística e deixa o produtor exposto a ficar sem combustível no meio da colheita.</p>
+        <p>A proposta foi inverter a ordem: todo mês, o balconista recebe uma <strong>lista dos cooperados com maior chance de comprar no mês seguinte</strong>, do mais provável para o menos provável, e liga primeiro para quem está no topo.</p>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="sparkle" data-shape-anchor=".flow .is-current" data-shape-align="start" data-shape-dx="6" data-shape-dy="13" data-shape-px="96" data-shape-intensity="0.95">
+      <div>
+        <p class="label">Abordagem</p>
+        <h2>Como montamos o modelo.</h2>
+      </div>
+      <div class="prose">
+        <p>A base veio relacional e anonimizada, em cinco tabelas, com as variáveis numéricas já transformadas pela própria cooperativa. Por isso trabalhamos com a forma das distribuições e com a ordem dos valores.</p>
+        <ol class="flow">
+          <li><div><h3>Recorte da coorte</h3><p>Só entra quem comprou diesel mais de uma vez: 5.396 produtores. Compradores únicos não têm intervalo entre compras, então não geram rótulo.</p></div></li>
+          <li><div><h3>Painel produtor × mês</h3><p>30 variáveis por produtor e por mês, usando apenas informação disponível até o fim daquele mês.</p></div></li>
+          <li><div><h3>Divisão no tempo</h3><p>Treino no passado, validação no meio e teste nos meses mais recentes, como o modelo vai ser usado de verdade.</p></div></li>
+          <li><div><h3>Comparação de 4 modelos</h3><p>Regressão logística, floresta aleatória, HistGradientBoosting e XGBoost, nas mesmas condições.</p></div></li>
+          <li class="is-gate"><div><h3>Critério de escolha definido antes</h3><p>O critério de escolha do modelo foi definido antes de olhar o teste. O XGBoost venceu por essa regra.</p></div></li>
+          <li><div><h3>Explicação com SHAP</h3><p>Para o balconista entender por que cada nome está na lista.</p></div></li>
+          <li><div><h3>Plataforma</h3><p>Lista do modelo por unidade, chance de compra, registro do resultado de cada contato e indicadores da operação.</p></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="ring" data-shape-anchor=".case-figure img" data-shape-size="1.15" data-shape-intensity="0.32">
+      <div>
+        <p class="label">Plataforma</p>
+        <h2>Uma tela para o balconista, outra para o gestor.</h2>
+      </div>
+      <div class="prose">
+        <p>O <strong>balconista</strong> abre a "Minha fila" e já vê o próximo contato sugerido, com a chance de compra e o motivo em linguagem simples ("14 compras em 12 meses; época do ano favorável"). O <strong>gestor</strong> acompanha a produção do mês: 5.389 cooperados pontuados em 78 unidades e 1.109 recomendados.</p>
+        <figure class="case-figure">
+          <img src="/img/projetos/cocamar-gestor.webp" width="1600" height="1000" alt="Tela Visão geral do gestor na Plataforma Cocamar, com carteira pontuada, unidades e cooperados recomendados" loading="lazy">
+          <figcaption>Visão geral do gestor, junho de 2026. Dados de demonstração do protótipo.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="ring" data-shape-anchor="h2" data-shape-size="0.55" data-shape-intensity="0.3">
+      <div>
+        <p class="label">Decisões-chave</p>
+        <h2>Escolhas que fizemos.</h2>
+      </div>
+      <ul class="decisions">
+        <li>
+          <h3>Medir o topo da lista</h3>
+          <p>O balconista liga para poucos nomes por dia. Acertar a data exata da compra importa menos do que ter as pessoas certas no topo da lista. Por isso as métricas principais foram precisão no topo (precision@50) e PR-AUC.</p>
+        </li>
+        <li>
+          <h3>Comparar com regras simples</h3>
+          <p>O modelo só vale a pena se bater o que qualquer um faria sem ele, como ligar para quem comprou há mais tempo. Cinco referências simples entraram na mesma tabela.</p>
+        </li>
+        <li>
+          <h3>Decidir o critério antes do teste</h3>
+          <p>Os três modelos de árvore ficaram praticamente empatados. Ter a regra de decisão registrada antes evitou escolher o vencedor olhando o resultado.</p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="case-block" data-shape="waves" data-shape-anchor=".big-numbers" data-shape-size="0.75" data-shape-intensity="0.3">
+      <div>
+        <p class="label">Resultados</p>
+        <h2>Resultados.</h2>
+      </div>
+      <div>
+        <ul class="big-numbers">
+          <li><strong>~45 de 50</strong><span>nomes no topo da lista compram no mês seguinte</span></li>
+          <li><strong>12,3 de 50</strong><span>é o que se acertaria sorteando nomes da carteira</span></li>
+          <li><strong>0,121</strong><span>escore de Brier: a probabilidade prevista se comporta como probabilidade</span></li>
+        </ul>
+
+        <table class="results">
+          <thead>
+            <tr><th>Referência</th><th>precision@50</th><th>PR-AUC</th><th>ROC-AUC</th></tr>
+          </thead>
+          <tbody>
+            <tr class="highlight"><td>Modelo (XGBoost)</td><td class="num">0,895</td><td class="num">0,694</td><td class="num">0,864</td></tr>
+            <tr><td>Recência: quem comprou por último</td><td class="num">0,410</td><td class="num">0,372</td><td class="num">0,684</td></tr>
+            <tr><td>Acaso, na taxa do período</td><td class="num">0,247</td><td class="num">0,247</td><td class="num">0,500</td></tr>
+          </tbody>
+        </table>
+        <p class="results-note">Conjunto de teste, nos meses mais recentes. A variável que mais pesou foi o calendário agrícola, seguida do histórico recente de compras: o calendário diz <em>quando</em> existe demanda, o histórico diz <em>quem</em> procurar primeiro.</p>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="sparkle" data-shape-anchor="h2" data-shape-size="0.5" data-shape-intensity="0.3">
+      <div>
+        <p class="label">Limites</p>
+        <h2>Limitações.</h2>
+      </div>
+      <div class="prose">
+        <p>O modelo aprende com o cooperado <strong>ativo e recorrente</strong>. Os 1.120 produtores que compraram uma única vez ficam de fora, e o resultado não generaliza para a base cadastral inteira.</p>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="sparkle" data-shape-anchor="h2" data-shape-size="0.5" data-shape-intensity="0.3">
+      <div>
+        <p class="label">Stack e links</p>
+        <h2>Ferramentas.</h2>
+      </div>
+      <div class="prose">
+        <ul class="tags">
+          <li>Python</li><li>pandas</li><li>scikit-learn</li><li>XGBoost</li><li>SHAP</li><li>JavaScript</li><li>Node.js</li><li>Jupyter</li>
+        </ul>
+        <p>
+          <a href="https://github.com/viniciuscbonani/Plataforma-Cocamar" target="_blank" rel="noopener">Repositório da plataforma ↗</a>
+          &nbsp;·&nbsp;
+          <a href="https://youtu.be/cq4tgzH9dK8" target="_blank" rel="noopener">Vídeo de demonstração ↗</a>
+        </p>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="sparkle" data-shape-anchor="h2" data-shape-size="0.5" data-shape-intensity="0.3">
+      <div>
+        <p class="label">O que aprendi</p>
+        <h2>A métrica vem de quem usa.</h2>
+      </div>
+      <div class="prose">
+        <p>O balconista da Cocamar liga para poucos nomes por dia. Por isso medimos o acerto nos primeiros nomes da lista, que é o que muda o trabalho dele.</p>
+      </div>
+    </section>
+
+    <!-- Fim da página: meio anel na borda de baixo; parado aqui, rolar mais carrega o arco e leva ao próximo projeto (case.js) -->
+    <section class="next" data-next data-shape="ring" data-shape-anchor=".next-stage" data-shape-align="bottom" data-shape-size="1.1" data-shape-fit="width" data-shape-intensity="0.4">
+      <div class="next-stage">
+        <a class="next-project" href="./tractian.html" data-transition-title="Investigação · Tractian">
+          <span class="next-label">Próximo projeto</span>
+          <strong>Investigação industrial · Tractian →</strong>
+        </a>
+      </div>
+    </section>
+  </main>
+
+
+</body>
+</html>

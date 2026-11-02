@@ -1,0 +1,701 @@
+/* ============================================================
+   HOME
+   ============================================================ */
+
+/* --- HERO --- */
+.hero {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding: 6.5rem 0 4rem;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+}
+
+.hero-name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(3.2rem, 7.2vw, 6.8rem);
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+  color: var(--ink-3);
+  margin-top: 1.5rem;
+}
+
+.hero-name span {
+  color: var(--signal);
+}
+
+.hero-claim {
+  margin-top: 2rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.45rem, 2.6vw, 2.1rem);
+  line-height: 1.18;
+  max-width: 24ch;
+}
+
+.hero-claim em {
+  font-style: normal;
+  color: var(--signal);
+}
+
+.hero-sub {
+  margin-top: 1.25rem;
+  color: var(--text-muted);
+  max-width: 48ch;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  list-style: none;
+}
+
+.chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(8, 26, 20, 0.6);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.chips li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink-2);
+}
+
+.chips strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2.25rem;
+}
+
+.btn-ghost {
+  background: rgba(8, 26, 20, 0.6);
+}
+
+.portrait {
+  position: relative;
+  justify-self: end;
+  width: 100%;
+  /* O retrato inteiro cabe na primeira tela, mesmo em monitores baixos */
+  max-width: min(440px, calc((100svh - 12rem) * 2 / 3));
+}
+
+.portrait img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.portrait figcaption {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* Sem WebGL: foto normal; no hover, a versão em dither aparece por cima */
+.portrait-frame {
+  position: relative;
+}
+
+.portrait-frame .photo-dither {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  image-rendering: pixelated;
+  opacity: 0;
+  transition: opacity 0.35s steps(5);
+}
+
+.portrait:hover .photo-dither {
+  opacity: 1;
+}
+
+/* Com WebGL: o canvas desenha por cima do lugar exato das imagens */
+.gl-on .portrait-frame img,
+.gl-on .portrait:hover .photo-dither {
+  opacity: 0;
+}
+
+.hint-touch {
+  display: none;
+}
+
+@media (hover: none) {
+  .hint-mouse {
+    display: none;
+  }
+
+  .hint-touch {
+    display: inline;
+  }
+}
+
+/* --- PROJETOS EM DESTAQUE --- */
+.work-head {
+  text-align: center;
+  margin-bottom: clamp(3rem, 8vw, 6rem);
+}
+
+.work-head .section-title {
+  max-width: 16ch;
+  margin-inline: auto;
+}
+
+.work-list {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.5rem, 6vw, 4.5rem);
+  list-style: none;
+}
+
+/* Como no Featured Work do Ricardo Chance: título à esquerda, imagem no centro, uma métrica à direita */
+.work-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.6fr) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  align-items: center;
+}
+
+.work-left,
+.work-right {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.work-right {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.work-index {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-2);
+}
+
+.work-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.4rem, 2.4vw, 2.1rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+.work-title a {
+  text-decoration: none;
+}
+
+.work-kind {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.work-card .shot {
+  display: block;
+  aspect-ratio: 2 / 1;
+  cursor: none;
+}
+
+.work-metric {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  max-width: 22ch;
+}
+
+.work-metric strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  line-height: 1;
+  color: var(--signal);
+  margin-bottom: 0.4rem;
+}
+
+.work-link {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--ink-3);
+  text-decoration: none;
+  border-bottom: 1px solid var(--ink-2);
+  padding-bottom: 0.2rem;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.work-link:hover {
+  color: var(--signal);
+  border-color: var(--signal);
+}
+
+.gl-cards .work-card .shot {
+  border-color: transparent;
+  background: transparent;
+}
+
+.gl-cards .work-card .shot img {
+  opacity: 0;
+}
+
+/* Selo que segue o cursor sobre as imagens dos projetos */
+.cursor-badge {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 45;
+  width: 88px;
+  height: 88px;
+  margin: -44px 0 0 -44px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--signal);
+  border-radius: 50%;
+  background: rgba(8, 26, 20, 0.55);
+  backdrop-filter: blur(4px);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--signal);
+  pointer-events: none;
+  opacity: 0;
+  scale: 0.6;
+  transition: opacity 0.25s steps(4), scale 0.25s steps(4);
+}
+
+.cursor-badge.is-visible {
+  opacity: 1;
+  scale: 1;
+}
+
+/* Botão para a página com todos os projetos */
+.more-projects {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(4rem, 9vw, 7rem);
+}
+
+/* --- SOBRE ---
+   Título e texto no centro, com o losango em dither do fundo atrás deles */
+.about-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: clamp(3rem, 10vh, 7rem) 0;
+}
+
+.about-center .section-title {
+  font-size: clamp(2.6rem, 6vw, 4.6rem);
+}
+
+.about-text {
+  margin-top: 1.75rem;
+  max-width: 54ch;
+}
+
+.about-text p {
+  font-size: clamp(1.05rem, 1.5vw, 1.2rem);
+  line-height: 1.6;
+  color: var(--text);
+  text-shadow: 0 1px 12px rgba(8, 26, 20, 0.9);
+}
+
+.about-text p + p {
+  margin-top: 1rem;
+}
+
+/* --- TRAJETÓRIA ---
+   Intro fixa à esquerda, linha no meio com um marcador que desce com o scroll
+   (o brilho em dither do fundo o acompanha) e os marcos à direita acendendo um a um. */
+.journey-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 2px minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+}
+
+.journey-intro {
+  position: sticky;
+  top: 32vh;
+  align-self: start;
+  text-align: right;
+}
+
+.journey-intro .label {
+  flex-direction: row-reverse;
+}
+
+.journey-lead {
+  margin: 1.25rem 0 0 auto;
+  color: var(--text-muted);
+  max-width: 34ch;
+}
+
+.journey-line {
+  position: relative;
+  background: var(--line);
+}
+
+.journey-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--ink-2);
+  transform-origin: top;
+  transform: scaleY(var(--progress, 0));
+}
+
+.journey-marker {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--progress, 0) * 100%);
+  width: 14px;
+  height: 14px;
+  translate: -50% -50%;
+  rotate: 45deg;
+  background: var(--signal);
+  box-shadow: 0 0 24px var(--signal);
+}
+
+/* Com WebGL, quem desenha o marcador é a estrela em dither do fundo */
+.gl-on .journey-marker {
+  opacity: 0;
+}
+
+.journey-list {
+  list-style: none;
+  padding: 10vh 0 20vh;
+}
+
+.journey-item {
+  min-height: 34vh;
+  opacity: 0.22;
+  transition: opacity 0.4s steps(4);
+}
+
+.journey-item.is-past {
+  opacity: 0.5;
+}
+
+.journey-item.is-active {
+  opacity: 1;
+}
+
+.journey-num {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--ink-2);
+}
+
+.journey-item h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin: 0.6rem 0 0.75rem;
+}
+
+.journey-item p {
+  color: var(--text-muted);
+  max-width: 40ch;
+}
+
+/* Ramificação depois da Cocamar: a linha desce, se divide e chega em cada clube.
+   Os caminhos e o ponto da divisão são posicionados pelo JS (setupBranch em home.js). */
+.journey-branch {
+  position: relative;
+  padding-top: clamp(8rem, 18vh, 11rem);
+}
+
+.branch-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.branch-lines path {
+  fill: none;
+  stroke: var(--ink-2);
+  stroke-width: 1;
+}
+
+.journey-fork {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  translate: -50% -50%;
+  rotate: 45deg;
+  background: var(--signal);
+  box-shadow: 0 0 24px var(--signal);
+}
+
+/* Com WebGL, quem marca a divisão é o anel em dither do fundo */
+.gl-on .journey-fork {
+  opacity: 0;
+}
+
+.branch-label {
+  position: absolute;
+  translate: 0 -50%;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.branch-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.5rem, 4vw, 3rem);
+  list-style: none;
+  text-align: center;
+}
+
+.branch-logo {
+  width: min(200px, 70%);
+  margin: 0 auto 1.25rem;
+  image-rendering: pixelated;
+}
+
+/* Com WebGL, os logos são desenhados pelo fundo (se formam com o scroll); a imagem só guarda o lugar */
+.gl-on .branch-logo {
+  opacity: 0;
+}
+
+.branch-item h3 {
+  font-size: clamp(1.3rem, 2.2vw, 1.7rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ink-3);
+}
+
+.branch-item p {
+  margin: 0.4rem auto 0;
+  max-width: 26ch;
+  color: var(--text-muted);
+}
+
+/* --- STACK --- */
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(2rem, 4vw, 3rem);
+}
+
+.stack-group h3 {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--ink-2);
+  margin-bottom: 1.25rem;
+}
+
+.stack-group ul {
+  list-style: none;
+}
+
+.stack-group li {
+  font-size: 1.15rem;
+  line-height: 1.9;
+}
+
+/* --- CONTATO --- */
+.contact {
+  padding-bottom: clamp(8rem, 18vh, 12rem);
+  text-align: center;
+}
+
+/* Título no centro da página, com o anel em dither em volta. O anel tem raio de ~34% da altura da tela
+   (data-shape-size="0.74"), então o email e as redes começam abaixo dele */
+.contact-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(2.8rem, 9vw, 7.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--ink-3);
+  max-width: 12ch;
+  /* Margem (e não padding) para a caixa do título ser só o texto: o anel se centraliza nela */
+  margin: max(6rem, calc(36vh - 7rem)) auto 0;
+}
+
+.contact-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: max(6rem, calc(36vh - 7rem));
+}
+
+.email {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  font-family: var(--font-mono);
+  font-size: clamp(0.95rem, 2vw, 1.2rem);
+}
+
+.email a {
+  text-decoration: none;
+}
+
+.copy-btn {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+}
+
+.copy-btn:hover {
+  color: var(--text);
+}
+
+.socials {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+.socials a {
+  text-decoration: none;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+}
+
+.socials a:hover {
+  color: var(--signal);
+}
+
+/* --- RESPONSIVO --- */
+@media (max-width: 960px) {
+  .hero-grid,
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portrait {
+    justify-self: start;
+    max-width: min(280px, 72vw);
+    order: -1;
+  }
+
+  .portrait img {
+    aspect-ratio: 4 / 5;
+    object-position: center top;
+  }
+
+  .stack-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .work-card {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .work-card .shot {
+    order: -1;
+    cursor: pointer;
+  }
+
+  .work-right {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .work-metric {
+    max-width: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .journey-grid {
+    grid-template-columns: 2px minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+
+  .journey-intro {
+    position: static;
+    grid-column: 1 / -1;
+    text-align: left;
+  }
+
+  .journey-intro .label {
+    flex-direction: row;
+  }
+
+  .journey-lead {
+    margin-left: 0;
+  }
+
+  .journey-list {
+    padding: 2rem 0 6vh;
+  }
+
+  .journey-item {
+    min-height: 26vh;
+  }
+
+  .branch-list {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  /* Com os clubes empilhados, os caminhos cruzariam os itens; fica só a lista */
+  .branch-lines,
+  .journey-fork {
+    display: none;
+  }
+
+  .journey-branch {
+    padding-top: 4rem;
+  }
+
+  .branch-label {
+    position: static;
+    translate: none;
+    margin-bottom: 2.5rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 640px) {
+
+}

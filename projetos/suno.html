@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estúdio de conteúdo · Suno Asset · Vinícius Bonani</title>
+  <meta name="description" content="Estudo de caso: sistema que transforma atas do Copom em conteúdo financeiro para três públicos, verificando cada fato na fonte antes de escrever e avaliando o texto antes de entregar.">
+  <meta name="theme-color" content="#081a14">
+  <!-- Página aberta por uma transição: já nasce coberta, antes de qualquer pintura (ver src/lib/transition.js) -->
+  <script>
+    try {
+      const title = sessionStorage.getItem('vb-transition');
+      if (title !== null && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        sessionStorage.removeItem('vb-transition');
+        document.documentElement.classList.add('is-entering');
+        document.documentElement.dataset.transitionTitle = title;
+      }
+    } catch {}
+    // Quando o navegador pula a View Transition (ex.: navegação sem clique), a promessa rejeita; não é erro
+    const ignoreSkip = transition => {
+      transition?.ready.catch(() => {});
+      transition?.finished.catch(() => {});
+      transition?.updateCallbackDone?.catch(() => {});
+    };
+    addEventListener('pagereveal', event => ignoreSkip(event.viewTransition));
+    addEventListener('pageswap', event => ignoreSkip(event.viewTransition));
+  </script>
+  <style>
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+    html.is-entering::before { content: ''; position: fixed; inset: 0; z-index: 200; background: #081a14; }
+    html.is-entering::after { content: attr(data-transition-title); position: fixed; inset: 0; z-index: 201; display: grid; place-items: center; padding: 0 1rem; text-align: center; color: #c4dbd0; font: 500 clamp(2rem, 6vw, 4.5rem)/1.05 'Geist', sans-serif; letter-spacing: -0.03em; }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/src/styles/tokens.css">
+  <link rel="stylesheet" href="/src/styles/base.css">
+  <link rel="stylesheet" href="/src/styles/case.css">
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body data-page="case">
+
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="../index.html" data-transition-title="Vinícius Bonani">vb<span>.</span></a>
+      <nav aria-label="Navegação principal">
+        <a href="./index.html" data-transition-title="Projetos" aria-current="page">Projetos</a>
+        <a href="../index.html#sobre" data-transition-title="Vinícius Bonani">Sobre</a>
+        <a href="../index.html#contato" data-transition-title="Vinícius Bonani">Contato</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <section class="case-hero" data-shape="logo" data-shape-logo="suno" data-shape-x="0.8" data-shape-y="0.39" data-shape-size="0.6" data-shape-intensity="0.75">
+      <a class="back-link" href="./index.html" data-transition-title="Projetos">← todos os projetos</a>
+      <h1 class="case-title">Estúdio de conteúdo<br>· Suno Asset</h1>
+      <p class="case-lead">Um sistema que lê uma ata do Copom e escreve sobre ela para quem está começando ou para quem já entende do assunto, <strong>com a fonte de cada afirmação</strong> e uma avaliação antes de entregar.</p>
+
+      <dl class="fact-sheet">
+        <div><dt>Parceiro</dt><dd>Suno Asset, via Inteli Academy</dd></div>
+        <div><dt>Ano</dt><dd>2026</dd></div>
+        <div><dt>Formato</dt><dd>Projeto individual</dd></div>
+        <div><dt>Meu papel</dt><dd>Arquitetura, backend, frontend e avaliação</dd></div>
+      </dl>
+
+      <div class="case-cover">
+        <div class="shot"><img src="/img/projetos/suno.webp" width="1600" height="800" alt="Tela inicial do estúdio de conteúdo da Suno Asset, com a área para enviar uma ata do Copom"></div>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="sparkle" data-shape-anchor="h2" data-shape-size="0.5" data-shape-intensity="0.3">
+      <div>
+        <p class="label">Problema</p>
+        <h2>Um LLM resume rápido, mas erra números.</h2>
+      </div>
+      <div class="prose">
+        <p>Atas do Copom, fatos relevantes e releases de resultado são longos e técnicos. Transformar um documento desses em conteúdo para o público da Suno leva tempo, e cada público pede um texto diferente: quem está começando precisa de contexto, quem já acompanha juros quer densidade.</p>
+        <p>Um LLM genérico ajuda a ganhar tempo, mas traz riscos que num conteúdo financeiro custam caro:</p>
+        <ul>
+          <li>trocar um número, uma unidade ou um período;</li>
+          <li>deixar de fora a decisão principal;</li>
+          <li>afirmar algo que a ata não diz;</li>
+          <li>não deixar claro de onde veio cada informação.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="sparkle" data-shape-anchor=".flow .is-current" data-shape-align="start" data-shape-dx="6" data-shape-dy="13" data-shape-px="96" data-shape-intensity="0.95">
+      <div>
+        <p class="label">Arquitetura</p>
+        <h2>Como funciona.</h2>
+      </div>
+      <div class="prose">
+        <p>Um grafo em LangGraph com dois pontos de controle: um antes de escrever, que confere os fatos, e outro depois, que confere o texto. A pessoa escolhe o formato (texto analítico, carrossel ou roteiro de vídeo) e o público (iniciante, intermediário ou avançado).</p>
+        <ol class="flow">
+          <li><div><h3>Leitura da fonte <span class="who">código</span></h3><p>Recebe o PDF ou o texto colado, registra a origem e extrai o conteúdo guardando página e posição de cada trecho. Se a extração vier incompleta, o processo para com um diagnóstico.</p></div></li>
+          <li><div><h3>Fatos da ata <span class="who">regras + LLM</span></h3><p>Decisão de juros, votação, datas e tabelas saem por regras. O restante é extraído por um LLM, sempre com o trecho literal que sustenta cada fato.</p></div></li>
+          <li class="is-gate"><div><h3>Verificação dos fatos <span class="who">LLM + código</span></h3><p>Cada fato é confrontado com a fonte inteira: números, unidades, períodos, negações e quem disse o quê. Um fato sem suporte impede a geração.</p></div></li>
+          <li><div><h3>Seleção editorial <span class="who">código</span></h3><p>Escolhe os fatos que cabem no formato, sem deixar de fora a decisão monetária e a orientação futura.</p></div></li>
+          <li><div><h3>Geração <span class="who">LLM</span></h3><p>Escreve só o formato pedido, para o público escolhido, a partir dos fatos selecionados e com a referência de cada afirmação.</p></div></li>
+          <li class="is-branch"><div><h3>Avaliação <span class="who">código + LLM</span></h3><p>Confere estrutura, cobertura, sustentação de cada afirmação e linguagem. Aprova, pede uma correção ou entrega para revisão humana com os problemas apontados.</p></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="ring" data-shape-anchor="h2" data-shape-size="0.55" data-shape-intensity="0.3">
+      <div>
+        <p class="label">Decisões-chave</p>
+        <h2>Escolhas que fiz.</h2>
+      </div>
+      <ul class="decisions">
+        <li>
+          <h3>Conferir os fatos antes de escrever</h3>
+          <p>Corrigir um texto pronto é caro e nem sempre funciona. Verificando os fatos antes, um número errado nem chega a entrar no conteúdo.</p>
+        </li>
+        <li>
+          <h3>Regras onde dá, LLM onde precisa</h3>
+          <p>Partes previsíveis da ata, como a decisão e a votação, são lidas por código. Isso reduz chamadas ao modelo, custo e espaço para erro.</p>
+        </li>
+        <li>
+          <h3>Falha crítica reprova mesmo com nota alta</h3>
+          <p>Um número trocado ou uma afirmação sem fonte reprova o texto, mesmo que a média das outras verificações seja boa.</p>
+        </li>
+        <li>
+          <h3>Correções com limite</h3>
+          <p>O sistema tenta corrigir dentro de um orçamento de chamadas e nunca troca uma versão por outra pior. Quando o orçamento acaba, entrega a última versão válida marcada para revisão.</p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="case-block" data-shape="ring" data-shape-anchor=".case-figure img" data-shape-size="1.15" data-shape-intensity="0.32">
+      <div>
+        <p class="label">Avaliação</p>
+        <h2>Primeiro teste real.</h2>
+      </div>
+      <div>
+        <ul class="big-numbers">
+          <li><strong>9</strong><span>combinações de formato e público, cada uma com seu contrato de saída</span></li>
+          <li><strong>3 de 4</strong><span>conteúdos aprovados pela avaliação automática na ata do Copom de setembro de 2026</span></li>
+          <li><strong>1</strong><span>roteiro barrado por passar de 60 segundos, entregue para revisão em vez de aprovado</span></li>
+        </ul>
+        <figure class="case-figure">
+          <img src="/img/projetos/suno-resultado.webp" width="1600" height="760" alt="Carrossel gerado a partir da ata do Copom de setembro de 2026 para o público iniciante, aprovado pela avaliação, com as referências de cada card ao lado" loading="lazy">
+          <figcaption>Carrossel para iniciantes gerado a partir da ata do Copom de setembro de 2026. Cada card aponta para a página e o trecho da ata que o sustenta.</figcaption>
+        </figure>
+        <p class="results-note">É uma amostra pequena, de uma ata só, com o perfil econômico (Gemini Flash-Lite). Aprovação automática ainda passa por revisão editorial antes de publicar. O próximo passo é montar uma amostra anotada por pessoas e medir cobertura e precisão dos números em mais atas.</p>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="sparkle" data-shape-anchor="h2" data-shape-size="0.5" data-shape-intensity="0.3">
+      <div>
+        <p class="label">Stack e links</p>
+        <h2>Ferramentas.</h2>
+      </div>
+      <div class="prose">
+        <ul class="tags">
+          <li>Python</li><li>LangGraph</li><li>FastAPI</li><li>Pydantic</li><li>pdfplumber</li><li>Gemini</li><li>Groq</li><li>SQLite</li><li>JavaScript</li><li>pytest</li><li>Playwright</li><li>uv</li>
+        </ul>
+        <p><a href="https://github.com/viniciuscbonani/Projeto-Suno-Asset" target="_blank" rel="noopener">Repositório ↗</a></p>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="sparkle" data-shape-anchor="h2" data-shape-size="0.5" data-shape-intensity="0.3">
+      <div>
+        <p class="label">O que aprendi</p>
+        <h2>Separar o que é fato do que é texto.</h2>
+      </div>
+      <div class="prose">
+        <p>Quando os fatos ficam guardados separados do texto, com o trecho da fonte ao lado, dá para conferir cada um antes de escrever e mostrar a origem de cada frase depois.</p>
+      </div>
+    </section>
+
+    <!-- Fim da página: meio anel na borda de baixo; parado aqui, rolar mais carrega o arco e leva ao próximo projeto (case.js) -->
+    <section class="next" data-next data-shape="ring" data-shape-anchor=".next-stage" data-shape-align="bottom" data-shape-size="1.1" data-shape-fit="width" data-shape-intensity="0.4">
+      <div class="next-stage">
+        <a class="next-project" href="./cocamar.html" data-transition-title="TENK · Cocamar">
+          <span class="next-label">Próximo projeto</span>
+          <strong>TENK · Cocamar →</strong>
+        </a>
+      </div>
+    </section>
+  </main>
+
+
+</body>
+</html>

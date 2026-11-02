@@ -1,0 +1,241 @@
+/* ============================================================
+   PÁGINA DE PROJETOS
+   Duas visualizações, como na página de trabalhos do Dennis Snellenberg:
+   lista (com prévia que segue o cursor) e grade de cards.
+   ============================================================ */
+.projects-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding: clamp(9rem, 22vh, 14rem) 0 clamp(4rem, 10vw, 7rem);
+}
+
+.projects-title {
+  font-weight: 500;
+  font-size: clamp(3rem, 8vw, 6.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+  color: var(--ink-3);
+}
+
+.view-switch {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Botões só com ícone (lista / grade), no mesmo estilo dos botões da home; o selecionado fica preenchido */
+.view-icon {
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  justify-content: center;
+}
+
+.view-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.view-switch .btn[aria-pressed="true"] {
+  background: var(--ink-3);
+  color: var(--ink-0);
+  border-color: var(--ink-3);
+}
+
+.projects {
+  padding-bottom: var(--section-space);
+}
+
+/* --- LISTA --- */
+.projects-head,
+.projects[data-view="list"] .project a {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 0.4fr);
+  gap: 2rem;
+  align-items: center;
+}
+
+.projects-head {
+  padding-bottom: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.projects-head span:last-child,
+.projects[data-view="list"] .project-year {
+  text-align: right;
+}
+
+.projects-list {
+  list-style: none;
+}
+
+.projects[data-view="list"] .project a {
+  padding: clamp(1.5rem, 3.5vw, 2.25rem) 0;
+  text-decoration: none;
+  transition: opacity 0.4s var(--ease-out), padding 0.4s var(--ease-out);
+}
+
+.projects[data-view="list"] .project-media {
+  display: none;
+}
+
+.projects[data-view="list"] .project-name {
+  font-size: clamp(1.6rem, 3.6vw, 3rem);
+  font-weight: 500;
+  color: var(--ink-3);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.project-partner,
+.project-kind,
+.project-year {
+  color: var(--text-muted);
+}
+
+/* Com o mouse sobre a lista, as outras linhas recuam e a linha ativa anda um pouco */
+.projects[data-view="list"] .projects-list:hover .project a {
+  opacity: 0.35;
+}
+
+.projects[data-view="list"] .projects-list .project a:hover {
+  opacity: 1;
+  padding-left: 1.25rem;
+}
+
+.external {
+  font-size: 0.6em;
+  color: var(--ink-2);
+  vertical-align: super;
+}
+
+/* Prévia que segue o cursor na lista: vidro translúcido, como a barra de navegação,
+   com uma borda fina em volta da imagem */
+.project-preview {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 45;
+  width: clamp(280px, 28vw, 440px);
+  display: grid;
+  place-items: center;
+  padding: 0.6rem;
+  background: rgba(30, 70, 54, 0.38);
+  border: 1px solid rgba(196, 219, 208, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 6px;
+  overflow: hidden;
+  pointer-events: none;
+  scale: 0;
+}
+
+.project-preview img {
+  display: block;
+  width: 100%;
+  border-radius: 3px;
+}
+
+.project-preview-cta {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--signal);
+  color: var(--ink-0);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+/* --- GRADE --- */
+.projects[data-view="grid"] .projects-head {
+  display: none;
+}
+
+.projects[data-view="grid"] .projects-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(3.5rem, 7vw, 6rem) clamp(1.5rem, 4vw, 4rem);
+}
+
+.projects[data-view="grid"] .project a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem 1rem;
+  text-decoration: none;
+}
+
+.projects[data-view="grid"] .project-media {
+  grid-column: 1 / -1;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1 / 1;
+  margin-bottom: 1.5rem;
+  background: var(--bg-raised);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.projects[data-view="grid"] .project-media img {
+  width: 82%;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  transition: scale 0.6s var(--ease-out);
+}
+
+.projects[data-view="grid"] .project a:hover .project-media img {
+  scale: 1.04;
+}
+
+/* Com WebGL, as imagens da grade são desenhadas pelo canvas (dither que vira cor) */
+.gl-flat .projects[data-view="grid"] .project-media {
+  background: transparent;
+}
+
+.gl-flat .projects[data-view="grid"] .project-media img {
+  opacity: 0;
+}
+
+.projects[data-view="grid"] .project-name {
+  grid-column: 1 / -1;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 500;
+  color: var(--ink-3);
+  letter-spacing: -0.03em;
+}
+
+.projects[data-view="grid"] .project-partner {
+  display: none;
+}
+
+.projects[data-view="grid"] .project-year {
+  text-align: right;
+}
+
+@media (max-width: 767px) {
+  .projects-head {
+    display: none;
+  }
+
+  .projects[data-view="list"] .project a {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.4rem 1rem;
+  }
+
+  .projects[data-view="list"] .project-name {
+    grid-column: 1 / -1;
+  }
+
+  .projects[data-view="list"] .project-partner {
+    display: none;
+  }
+
+  .projects[data-view="grid"] .projects-list {
+    grid-template-columns: 1fr;
+  }
+}

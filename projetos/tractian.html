@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investigação industrial · Tractian · Vinícius Bonani</title>
+  <meta name="description" content="Estudo de caso: sistema multiagente com evals que investiga chamados industriais da Tractian e recomenda ações, com gate determinístico de suficiência e juiz antes do redator.">
+  <meta name="theme-color" content="#081a14">
+  <!-- Página aberta por uma transição: já nasce coberta, antes de qualquer pintura (ver src/lib/transition.js) -->
+  <script>
+    try {
+      const title = sessionStorage.getItem('vb-transition');
+      if (title !== null && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        sessionStorage.removeItem('vb-transition');
+        document.documentElement.classList.add('is-entering');
+        document.documentElement.dataset.transitionTitle = title;
+      }
+    } catch {}
+    // Quando o navegador pula a View Transition (ex.: navegação sem clique), a promessa rejeita; não é erro
+    const ignoreSkip = transition => {
+      transition?.ready.catch(() => {});
+      transition?.finished.catch(() => {});
+      transition?.updateCallbackDone?.catch(() => {});
+    };
+    addEventListener('pagereveal', event => ignoreSkip(event.viewTransition));
+    addEventListener('pageswap', event => ignoreSkip(event.viewTransition));
+  </script>
+  <style>
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+    html.is-entering::before { content: ''; position: fixed; inset: 0; z-index: 200; background: #081a14; }
+    html.is-entering::after { content: attr(data-transition-title); position: fixed; inset: 0; z-index: 201; display: grid; place-items: center; padding: 0 1rem; text-align: center; color: #c4dbd0; font: 500 clamp(2rem, 6vw, 4.5rem)/1.05 'Geist', sans-serif; letter-spacing: -0.03em; }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/src/styles/tokens.css">
+  <link rel="stylesheet" href="/src/styles/base.css">
+  <link rel="stylesheet" href="/src/styles/case.css">
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body data-page="case">
+
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="../index.html" data-transition-title="Vinícius Bonani">vb<span>.</span></a>
+      <nav aria-label="Navegação principal">
+        <a href="./index.html" data-transition-title="Projetos" aria-current="page">Projetos</a>
+        <a href="../index.html#sobre" data-transition-title="Vinícius Bonani">Sobre</a>
+        <a href="../index.html#contato" data-transition-title="Vinícius Bonani">Contato</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <section class="case-hero" data-shape="logo" data-shape-logo="tractian" data-shape-x="0.76" data-shape-y="0.32" data-shape-size="0.8" data-shape-intensity="0.75">
+      <a class="back-link" href="./index.html" data-transition-title="Projetos">← todos os projetos</a>
+      <h1 class="case-title">Investigação<br>industrial · Tractian</h1>
+      <p class="case-lead">Um sistema com cinco agentes que investiga chamados de clientes da Tractian e <strong>sugere o próximo passo</strong>, com evals para medir cada mudança. A decisão final fica com uma pessoa.</p>
+
+      <dl class="fact-sheet">
+        <div><dt>Parceiro</dt><dd>Tractian</dd></div>
+        <div><dt>Ano</dt><dd>2026</dd></div>
+        <div><dt>Formato</dt><dd>Projeto individual</dd></div>
+        <div><dt>Meu papel</dt><dd>Arquitetura, backend, frontend e avaliação</dd></div>
+      </dl>
+
+      <div class="case-cover">
+        <div class="shot"><img src="/img/projetos/tractian.webp" width="1600" height="800" alt="Painel interno de investigação da Tractian com o caso TKT-INV-04 concluído e o estado de cada fonte de evidência"></div>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="sparkle" data-shape-anchor="h2" data-shape-size="0.5" data-shape-intensity="0.3">
+      <div>
+        <p class="label">Problema</p>
+        <h2>Cada chamado precisa de um especialista.</h2>
+      </div>
+      <div class="prose">
+        <p>A Tractian monitora máquinas industriais com sensores e modelos de IA que emitem diagnósticos automáticos. Quando o diagnóstico não bate com a expectativa do cliente, ele abre um chamado:</p>
+        <ul>
+          <li>"O redutor quebrou ontem e eu não recebi nenhum aviso. Por quê?"</li>
+          <li>"O RMS está subindo há dias e nenhum insight foi gerado."</li>
+          <li>"Recebi um alerta de desbalanceamento, mas a máquina foi balanceada semana passada."</li>
+        </ul>
+        <p>Responder exige <strong>investigar o estado técnico do ativo</strong>: se a referência estava válida, se os dados chegaram completos, se o modelo cobria aquele tipo de falha. Hoje um engenheiro faz isso à mão, e esse trabalho não escala.</p>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="sparkle" data-shape-anchor=".flow .is-current" data-shape-align="start" data-shape-dx="6" data-shape-dy="13" data-shape-px="96" data-shape-intensity="0.95">
+      <div>
+        <p class="label">Arquitetura</p>
+        <h2>Como funciona.</h2>
+      </div>
+      <div class="prose">
+        <p>Os agentes cuidam das partes que envolvem linguagem. Entre um agente e outro, as regras mais importantes rodam em código. O sistema só tem acesso de <strong>leitura</strong> à API industrial.</p>
+        <ol class="flow">
+          <li><div><h3>Classificador <span class="who">LLM pequeno</span></h3><p>Decide se o caso pede contexto, investigação ou recomendação. Pedido de ação nunca vira autorização para executar.</p></div></li>
+          <li><div><h3>Agente de fontes <span class="who">LLM pequeno</span></h3><p>Planeja quais consultas fazer e escolhe até dois documentos reais da base de conhecimento. IDs inventados são descartados.</p></div></li>
+          <li><div><h3>Investigador <span class="who">LLM forte</span></h3><p>Consolida as evidências num relatório técnico, com hipóteses, lacunas e a citação que sustenta cada afirmação.</p></div></li>
+          <li class="is-gate"><div><h3>Gate de suficiência <span class="who">código</span></h3><p>Verifica se a evidência necessária existe antes de permitir qualquer conclusão ou recomendação.</p></div></li>
+          <li><div><h3>Juiz <span class="who">LLM forte</span></h3><p>Revisa o relatório e registra objeções estruturadas. Ele aponta problemas, mas não decide o próximo passo.</p></div></li>
+          <li class="is-branch"><div><h3>Compilador de revisão <span class="who">código</span></h3><p>Confere cada objeção contra as regras: volta para a etapa responsável, gera uma versão conservadora ou escala para um humano.</p></div></li>
+          <li><div><h3>Redator <span class="who">LLM menor</span></h3><p>Só escreve depois da aprovação: relatório para a engenharia e prévia de resposta ao cliente.</p></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="ring" data-shape-anchor="h2" data-shape-size="0.55" data-shape-intensity="0.3">
+      <div>
+        <p class="label">Decisões-chave</p>
+        <h2>Escolhas que fiz.</h2>
+      </div>
+      <ul class="decisions">
+        <li>
+          <h3>O sistema só sugere</h3>
+          <p>O desafio original incluía executar ações na plataforma. No recorte final, o sistema prepara a ação e a justificativa, mas a execução depende de aprovação humana.</p>
+        </li>
+        <li>
+          <h3>A checagem de evidência é feita em código</h3>
+          <p>A checagem olha para coisas que dá para verificar, como campos presentes nas consultas e conflitos já resolvidos. A "confiança" que o próprio LLM declara fica de fora.</p>
+        </li>
+        <li>
+          <h3>Um juiz revisa antes do texto final</h3>
+          <p>O relatório é contestado antes de virar texto para o cliente. Se o juiz levantar uma objeção que o código não consegue verificar, o relatório é descartado e substituído por uma versão conservadora.</p>
+        </li>
+        <li>
+          <h3>Cada investigação tem versão</h3>
+          <p>Cada investigação tem uma chave e uma assinatura do pipeline. Mudou o modelo, o prompt ou o contexto, vira uma nova revisão. Nada é reaproveitado depois de vencer.</p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="case-block" data-shape="ring" data-shape-anchor=".case-figure img" data-shape-size="1.15" data-shape-intensity="0.32">
+      <div>
+        <p class="label">Avaliação</p>
+        <h2>Como avaliei.</h2>
+      </div>
+      <div>
+        <ul class="big-numbers">
+          <li><strong>111</strong><span>casos de avaliação, separados em desenvolvimento, validação e teste</span></li>
+          <li><strong>0</strong><span>mutações inseguras e chamadas proibidas nos 17 fluxos de regressão</span></li>
+          <li><strong>100%</strong><span>de respostas no formato válido no modo de contingência</span></li>
+        </ul>
+        <figure class="case-figure">
+          <img src="/img/projetos/tractian-relatorio.webp" width="1600" height="760" alt="Resultado de uma investigação: os cinco agentes, o relatório concluindo que não há evidência suficiente para uma causa única, o parecer aprovado do juiz e zero mutações" loading="lazy">
+          <figcaption>Caso TKT-INV-04 rodado em modo de contingência: o relatório conclui que não há evidência suficiente para apontar uma causa única, lista o que ainda não se sabe e registra 0 mutações.</figcaption>
+        </figure>
+        <p class="results-note">Os números acima vêm do modo de contingência, que testa orquestração, contratos e segurança com os agentes substituídos por regras locais. Eles <strong>não</strong> medem a qualidade dos LLMs. O próximo passo é rodar o benchmark completo com os cinco modelos reais e comparar o sistema com o gate ligado e desligado.</p>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="sparkle" data-shape-anchor="h2" data-shape-size="0.5" data-shape-intensity="0.3">
+      <div>
+        <p class="label">Stack e links</p>
+        <h2>Ferramentas.</h2>
+      </div>
+      <div class="prose">
+        <ul class="tags">
+          <li>Python</li><li>LangGraph</li><li>FastAPI</li><li>Pydantic</li><li>httpx</li><li>SQLite</li><li>React</li><li>TypeScript</li><li>pytest</li><li>DeepEval</li><li>Docker</li>
+        </ul>
+        <p><a href="https://github.com/viniciuscbonani/Projeto-Tractian" target="_blank" rel="noopener">Repositório ↗</a></p>
+      </div>
+    </section>
+
+    <section class="case-block" data-shape="sparkle" data-shape-anchor="h2" data-shape-size="0.5" data-shape-intensity="0.3">
+      <div>
+        <p class="label">O que aprendi</p>
+        <h2>Regras importantes ficam no código.</h2>
+      </div>
+      <div class="prose">
+        <p>A checagem de evidência antes de qualquer conclusão é feita em Python. Uma instrução no prompt, o modelo às vezes ignora.</p>
+      </div>
+    </section>
+
+    <!-- Fim da página: meio anel na borda de baixo; parado aqui, rolar mais carrega o arco e leva ao próximo projeto (case.js) -->
+    <section class="next" data-next data-shape="ring" data-shape-anchor=".next-stage" data-shape-align="bottom" data-shape-size="1.1" data-shape-fit="width" data-shape-intensity="0.4">
+      <div class="next-stage">
+        <a class="next-project" href="./nvidia.html" data-transition-title="AI Radar · NVIDIA">
+          <span class="next-label">Próximo projeto</span>
+          <strong>Startup AI Radar · NVIDIA →</strong>
+        </a>
+      </div>
+    </section>
+  </main>
+
+
+</body>
+</html>

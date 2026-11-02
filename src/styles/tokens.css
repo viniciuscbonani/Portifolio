@@ -1,0 +1,31 @@
+/* ============================================================
+   TOKENS — paleta de 4 tintas (estilo Game Boy) + tipografia
+   ============================================================ */
+:root {
+  /* As 4 tintas do dither: papel → sombra → meio-tom → claro */
+  --ink-0: #081a14;
+  --ink-1: #1e4636;
+  --ink-2: #5e9c80;
+  --ink-3: #c4dbd0;
+
+  /* Destaque de interação: usar pouco */
+  --signal: #7cffb2;
+
+  --bg: var(--ink-0);
+  --bg-raised: #0d241c;
+  --text: #f0f5f3;
+  --text-muted: #8b9c96;
+  --line: rgba(196, 219, 208, 0.14);
+  --line-strong: rgba(196, 219, 208, 0.32);
+
+  /* Duas famílias: Geist para tudo e Geist Mono só em rótulos curtos */
+  --font-display: 'Geist', sans-serif;
+  --font-body: 'Geist', sans-serif;
+  --font-mono: 'Geist Mono', monospace;
+
+  --gutter: clamp(1rem, 4vw, 3rem);
+  --max-width: 1280px;
+  --section-space: clamp(6rem, 16vw, 12rem);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}

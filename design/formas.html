@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo · formas candidatas</title>
+  <!-- Página só de estudo (não entra no build): formas chapadas no estilo da estrela e do anel -->
+  <style>
+    body { margin: 0; background: #081a14; color: #f0f5f3; font-family: system-ui, sans-serif; }
+    main { max-width: 1280px; margin: 0 auto; padding: 48px 24px; }
+    h1 { font-size: 28px; margin: 0 0 8px; }
+    h2 { font-size: 20px; margin: 56px 0 16px; }
+    p.lead { color: #8b9c96; margin: 0 0 32px; max-width: 70ch; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+    .grid.wide { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }
+    figure { margin: 0; border: 1px solid rgba(196, 219, 208, 0.14); border-radius: 8px; overflow: hidden; }
+    canvas { display: block; width: 100%; aspect-ratio: 1; }
+    figcaption { padding: 14px; font-size: 13px; color: #8b9c96; line-height: 1.5; }
+    figcaption strong { display: block; color: #f0f5f3; font-size: 15px; margin-bottom: 2px; }
+    figcaption em { font-style: normal; color: #7cffb2; font-family: ui-monospace, monospace; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Formas candidatas</h1>
+    <p class="lead">Todas chapadas, com o mesmo brilho interno e o mesmo halo da estrela e do anel. As duas primeiras são as atuais, para comparar.</p>
+    <div class="grid" id="shapes"></div>
+
+    <h2>Derretendo entre elas</h2>
+    <p class="lead">Sequências como as do site, com a transição atual.</p>
+    <div class="grid wide" id="sequences"></div>
+  </main>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { ditherChunk, noiseChunk } from '/src/gl/glsl.js';
+    import { inkUniforms } from '/src/gl/stage.js';
+
+    // Cada forma devolve uma distância aproximada (negativa = dentro), na mesma escala da estrela e do anel
+    const SHAPES = [
+      { name: 'Estrela', tag: 'atual', text: 'A estrela de 4 pontas côncavas.', glsl: 'sdSparkle(q)' },
+      { name: 'Anel', tag: 'atual', text: 'O anel fino e vazado.', glsl: 'sdRing(q)' },
+      { name: 'Brilho duplo', tag: 'nova', text: 'Duas estrelas sobrepostas, uma girada 45°. Mais rica que a estrela simples.', glsl: 'min(sdSparkle(q), sdSparkle(rot(q, 0.785)) * 1.0 + 0.05)' },
+      { name: 'Flor de 4 pétalas', tag: 'nova', text: 'Quatro pétalas arredondadas. É a "irmã" da estrela, com curvas para fora.', glsl: 'sdQuatrefoil(q)' },
+      { name: 'Asterisco', tag: 'nova', text: 'Seis pétalas finas, como um asterisco desenhado à mão.', glsl: 'sdAsterisk(q)' },
+      { name: 'Ondas', tag: 'nova', text: 'Anéis concêntricos, como um radar ou um sinal. Combina com o anel.', glsl: 'sdWaves(q)' },
+      { name: 'Órbita', tag: 'nova', text: 'Um anel com um ponto girando nele.', glsl: 'sdOrbit(q)' },
+      { name: 'Lua crescente', tag: 'nova', text: 'Meia-lua. Suave, funciona bem com o anel e o círculo.', glsl: 'sdCrescent(q)' },
+      { name: 'Squircle vazado', tag: 'nova', text: 'Um quadrado de cantos bem redondos, só o contorno. Lembra uma célula ou um ícone de app.', glsl: 'sdSquircle(q)' },
+      { name: 'Círculo cheio', tag: 'nova', text: 'O mais simples de todos. Bom como "repouso" entre formas.', glsl: 'length(q) - 0.4' },
+      { name: 'Cruz suave', tag: 'nova', text: 'Um "+" de pontas arredondadas, mais grosso que a estrela.', glsl: 'sdPlus(q)' },
+      { name: 'Losango (atual)', tag: 'para comparar', text: 'O losango de hoje: lados retos e cheio, por isso destoa.', glsl: '(abs(q.x) + abs(q.y) - 0.5) * 0.75' }
+    ];
+
+    const shapeLibrary = /* glsl */ `
+      vec2 rot(vec2 q, float a) { float c = cos(a), s = sin(a); return mat2(c, -s, s, c) * q; }
+      float sdSparkle(vec2 q) { q = abs(q) + 1e-4; return (pow(q.x, 0.55) + pow(q.y, 0.55) - 0.62) * 0.6; }
+      float sdRing(vec2 q) { return abs(length(q) - 0.42) - 0.045; }
+      float sdQuatrefoil(vec2 q) {
+        float a = atan(q.y, q.x);
+        return (length(q) - (0.22 + 0.22 * abs(cos(2.0 * a)))) * 0.8;
+      }
+      float sdAsterisk(vec2 q) {
+        float a = atan(q.y, q.x);
+        return (length(q) - (0.08 + 0.4 * pow(abs(cos(3.0 * a)), 6.0))) * 0.7;
+      }
+      float sdWaves(vec2 q) {
+        float r = length(q);
+        float rings = abs(mod(r + 0.07, 0.15) - 0.075) - 0.022;
+        return max(rings, r - 0.46);
+      }
+      float sdOrbit(vec2 q, float time) {
+        vec2 planet = 0.42 * vec2(cos(time * 0.8), sin(time * 0.8));
+        return min(abs(length(q) - 0.42) - 0.025, length(q - planet) - 0.07);
+      }
+      float sdOrbit(vec2 q) { return sdOrbit(q, uTime); }
+      float sdCrescent(vec2 q) {
+        return max(length(q) - 0.42, -(length(q - vec2(0.16, 0.1)) - 0.36));
+      }
+      float sdSquircle(vec2 q) {
+        vec2 a = abs(q);
+        float r = pow(pow(a.x, 4.0) + pow(a.y, 4.0), 0.25);
+        return abs(r - 0.36) - 0.045;
+      }
+      float sdPlus(vec2 q) {
+        vec2 a = abs(q);
+        float bar = min(max(a.x - 0.12, a.y - 0.42), max(a.y - 0.12, a.x - 0.42));
+        return bar - 0.03;
+      }
+    `;
+
+    function shader(body) {
+      return /* glsl */ `
+        uniform float uTime;
+        ${ditherChunk}
+        ${noiseChunk}
+        ${shapeLibrary}
+        varying vec2 vUv;
+        float shapeAt(vec2 q, float index);
+        void main() {
+          vec2 q = (vUv - 0.5) * 1.2;
+          q.y = -q.y;
+          float d = ${body};
+          float inside = 1.0 - smoothstep(-0.012, 0.012, d);
+          float shimmer = 0.35 + 0.5 * fbm(q * 3.5 + vec2(uTime * 0.12, -uTime * 0.08));
+          float halo = exp(-max(d, 0.0) * 9.0) * 0.26;
+          float v = (inside * shimmer + halo) * 0.95;
+          if (v < 0.08) { gl_FragColor = vec4(uInk0, 1.0); return; }
+          gl_FragColor = vec4(inkRamp(v, threshold()), 1.0);
+        }
+        float shapeAt(vec2 q, float index) { return 0.0; }
+      `;
+    }
+
+    function makeTile(container, title, text, tag, fragment, size) {
+      const figure = document.createElement('figure');
+      figure.innerHTML = `<canvas></canvas><figcaption><em>${tag}</em><strong>${title}</strong>${text}</figcaption>`;
+      container.append(figure);
+      const renderer = new THREE.WebGLRenderer({ canvas: figure.querySelector('canvas'), antialias: false });
+      renderer.setPixelRatio(1);
+      renderer.setSize(size, size, false);
+      const scene = new THREE.Scene();
+      const camera = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5, 0, 1);
+      const uniforms = { ...inkUniforms(), uPixel: { value: 3 }, uTime: { value: 0 }, uA: { value: 0 }, uB: { value: 1 }, uMix: { value: 0 } };
+      scene.add(new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.ShaderMaterial({
+        vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy * 2.0, 0.0, 1.0); }',
+        fragmentShader: fragment,
+        uniforms
+      })));
+      return { renderer, scene, camera, uniforms };
+    }
+
+    const tiles = [];
+    const shapesGrid = document.getElementById('shapes');
+    SHAPES.forEach(s => tiles.push(makeTile(shapesGrid, s.name, s.text, s.tag, shader(s.glsl), 300)));
+
+    // Sequências: derrete entre as formas, como o site faz hoje
+    const sequences = [
+      { title: 'Estrela → flor → anel → ondas', ids: [0, 3, 1, 5] },
+      { title: 'Estrela → brilho duplo → órbita → lua', ids: [0, 2, 6, 7] },
+      { title: 'Círculo → asterisco → squircle → anel', ids: [9, 4, 8, 1] }
+    ];
+    const seqGrid = document.getElementById('sequences');
+    sequences.forEach(seq => {
+      const cases = seq.ids.map((id, i) => `if (index < ${i}.5) return ${SHAPES[id].glsl};`).join('\n');
+      const fragment = shader('mix(pick(q, uA), pick(q, uB), uMix)')
+        .replace('float shapeAt(vec2 q, float index);', `uniform float uA; uniform float uB; uniform float uMix;\nfloat pick(vec2 q, float index) {\n${cases}\nreturn ${SHAPES[seq.ids[seq.ids.length - 1]].glsl};\n}`);
+      const tile = makeTile(seqGrid, seq.title, 'Troca a cada 2 segundos.', 'sequência', fragment, 420);
+      tile.count = seq.ids.length;
+      tiles.push(tile);
+    });
+
+    const start = performance.now();
+    const loop = () => {
+      const t = (performance.now() - start) / 1000;
+      tiles.forEach(tile => {
+        tile.uniforms.uTime.value = t;
+        if (tile.count) {
+          const step = Math.floor(t / 2);
+          tile.uniforms.uA.value = step % tile.count;
+          tile.uniforms.uB.value = (step + 1) % tile.count;
+          tile.uniforms.uMix.value = THREE.MathUtils.smoothstep((t / 2) % 1, 0.35, 0.95);
+        }
+        tile.renderer.render(tile.scene, tile.camera);
+      });
+      requestAnimationFrame(loop);
+    };
+    loop();
+  </script>
+</body>
+</html>
